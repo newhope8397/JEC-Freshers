@@ -1,0 +1,59 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firebase Connection Test</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #F7F4EA;
+      color: #31594D;
+      padding: 24px;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 500px;
+      margin: 40px auto;
+      background: white;
+      padding: 24px;
+      border-radius: 16px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h2>JEC Freshers Portal</h2>
+    <p id="status">Connecting to Firebase...</p>
+  </main>
+
+  <script type="module">
+    import { initializeApp }
+      from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+
+    import { getFirestore, getDoc, doc }
+      from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    import { firebaseConfig }
+      from "./firebase-config.js";
+
+    const status = document.getElementById("status");
+
+    try {
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      // Check that the Firebase app initializes.
+      // No database data is read or changed.
+      status.textContent =
+        "Firebase initialized successfully!";
+
+    } catch (error) {
+      console.error(error);
+      status.textContent =
+        "Connection setup failed: " + error.message;
+    }
+  </script>
+</body>
+</html>
