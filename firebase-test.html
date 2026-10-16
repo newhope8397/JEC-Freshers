@@ -46,9 +46,13 @@
 
       // Check that the Firebase app initializes.
       // No database data is read or changed.
-      status.textContent =
-        "Firebase initialized successfully!";
+      const snapshot = await getDoc(
+  doc(db, "content", "REPLACE_WITH_DOCUMENT_ID")
+);
 
+status.textContent = snapshot.exists()
+  ? "Firestore read successful!"
+  : "Connected, but document not found.";
     } catch (error) {
       console.error(error);
       status.textContent =
