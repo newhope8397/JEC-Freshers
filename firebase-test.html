@@ -22,10 +22,23 @@
   </style>
 </head>
 <body>
-  <main>
-    <h2>JEC Freshers Portal</h2>
-    <p id="status">Connecting to Firebase...</p>
-  </main>
+  
+<main>
+  <h2>JEC Freshers Portal</h2>
+  <p id="status">Firebase is ready.</p>
+
+  <form id="login-form">
+    <label for="email">Owner email</label><br>
+    <input id="email" type="email" required
+      autocomplete="username"><br><br>
+
+    <label for="password">Password</label><br>
+    <input id="password" type="password" required
+      autocomplete="current-password"><br><br>
+
+    <button type="submit">Sign in and test</button>
+  </form>
+</main>
 
   <script type="module">
     import { initializeApp }
