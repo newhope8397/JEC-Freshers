@@ -56,6 +56,40 @@
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 
     const status = document.getElementById("status");
+    
+const auth = getAuth(app);
+
+document.getElementById("login-form")
+  .addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    status.textContent = "Signing in...";
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    try {
+      const credential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      const snapshot = await getDoc(
+        doc(db, "content", "REPLACE_WITH_DOCUMENT_ID")
+      );
+
+      status.textContent = snapshot.exists()
+        ? "Owner sign-in successful. Firestore read successful!"
+        : "Signed in, but the document was not found.";
+
+    } catch (error) {
+      console.error(error);
+      status.textContent =
+        "Test failed: " + error.code;
+    }
+  });
+
 
     try {
       const app = initializeApp(firebaseConfig);
