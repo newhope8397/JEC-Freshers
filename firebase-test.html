@@ -103,7 +103,7 @@
           status.textContent = "Signed in. Checking Firestore permissions...";
 
           const snapshot = await getDoc(
-            doc(db, "content", "S93w8dx983Szeo4wbmw1BBoAxqz2")
+            doc(db, "content", "content")
           );
 
           status.textContent = snapshot.exists()
