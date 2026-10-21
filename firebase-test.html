@@ -106,10 +106,25 @@
             doc(db, "content", "content")
           );
 
-          status.textContent = snapshot.exists()
-            ? "SUCCESS: Sign-in and Firestore read both work."
-            : "Sign-in worked, but the document was not found.";
+          status.textContent = "Signed in UID: " + credential.user.uid
+  + ". Checking admin document...";
 
+const adminSnapshot = await getDoc(
+  doc(db, "admins", credential.user.uid)
+);
+
+status.textContent = adminSnapshot.exists()
+  ? "ADMIN READ SUCCESS. Checking content..."
+  : "Admin document not found.";
+
+const contentSnapshot = await getDoc(
+  doc(db, "content", "content")
+);
+
+status.textContent = contentSnapshot.exists()
+  ? "SUCCESS: Admin and content reads both work."
+  : "Admin read worked, but content document was not found.";
+          
         } catch (error) {
           console.error("Firebase test error:", error);
           status.textContent = "Test failed: " + error.code;
