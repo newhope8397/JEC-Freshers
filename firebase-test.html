@@ -1,142 +1,82 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JEC Freshers — Firebase Test</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #F7F4EA;
-      color: #31594D;
-      padding: 24px;
-      line-height: 1.6;
-    }
-
-    main {
-      max-width: 500px;
-      margin: 40px auto;
-      background: white;
-      padding: 24px;
-      border-radius: 16px;
-    }
-
-    input, button {
-      box-sizing: border-box;
-      width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-    }
-
-    button {
-      background: #31594D;
-      color: white;
-      border: 0;
-      border-radius: 8px;
-    }
-
-    #status {
-      overflow-wrap: anywhere;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JEC Firebase Diagnostic</title>
 </head>
 <body>
-  <main>
-    <h2>JEC Freshers Portal</h2>
-    <p id="status">Initializing Firebase...</p>
+  <h2>JEC Firebase Diagnostic</h2>
+  <p id="status">Loading...</p>
 
-    <form id="login-form">
-      <label for="email">Owner email</label>
-      <input id="email" type="email"
-        autocomplete="username" required>
-
-      <label for="password">Password</label>
-      <input id="password" type="password"
-        autocomplete="current-password" required>
-
-      <button id="submit-button" type="submit">
-        Sign in and test
-      </button>
-    </form>
-  </main>
+  <form id="login-form">
+    <input id="email" type="email" placeholder="Email" required>
+    <input id="password" type="password" placeholder="Password" required>
+    <button type="submit">Sign in and diagnose</button>
+  </form>
 
   <script type="module">
-    import { initializeApp }
-      from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { initializeApp } from
+      "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 
-    import {
-      getFirestore, getDoc, doc
-    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+    import { getFirestore, getDoc, doc } from
+      "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-    import {
-      getAuth, signInWithEmailAndPassword
-    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword } from
+      "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 
-    import { firebaseConfig }
-      from "./firebase-config.js";
+    import { firebaseConfig } from "./firebase-config.js";
 
     const status = document.getElementById("status");
-    const form = document.getElementById("login-form");
-    const button = document.getElementById("submit-button");
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
 
-    try {
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
-      const auth = getAuth(app);
+    status.textContent = "Firebase initialized.";
 
-      status.textContent = "Firebase initialized. Sign in to test access.";
-
-      form.addEventListener("submit", async (event) => {
+    document.getElementById("login-form").addEventListener(
+      "submit", async (event) => {
         event.preventDefault();
-        button.disabled = true;
         status.textContent = "Signing in...";
-
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value;
 
         try {
           const credential = await signInWithEmailAndPassword(
-            auth, email, password
+            auth,
+            document.getElementById("email").value.trim(),
+            document.getElementById("password").value
           );
 
-          status.textContent = "Signed in. Checking Firestore permissions...";
+          status.textContent =
+            "Sign-in successful. UID: " + credential.user.uid;
 
-          const snapshot = await getDoc(
-            doc(db, "content", "content")
-          );
+          try {
+            await getDoc(doc(db, "admins", credential.user.uid));
+            status.textContent =
+              "ADMIN READ SUCCESS. Testing content...";
 
-          status.textContent = "Signed in UID: " + credential.user.uid
-  + ". Checking admin document...";
+          } catch (error) {
+            status.textContent =
+              "ADMIN READ FAILED: " + error.code;
+            return;
+          }
 
-const adminSnapshot = await getDoc(
-  doc(db, "admins", credential.user.uid)
-);
+          try {
+            const snapshot = await getDoc(doc(db, "content", "content"));
 
-status.textContent = adminSnapshot.exists()
-  ? "ADMIN READ SUCCESS. Checking content..."
-  : "Admin document not found.";
+            status.textContent = snapshot.exists()
+              ? "SUCCESS: Admin and content reads both work."
+              : "Admin read worked, but content document is missing.";
 
-const contentSnapshot = await getDoc(
-  doc(db, "content", "content")
-);
+          } catch (error) {
+            status.textContent =
+              "CONTENT READ FAILED: " + error.code;
+          }
 
-status.textContent = contentSnapshot.exists()
-  ? "SUCCESS: Admin and content reads both work."
-  : "Admin read worked, but content document was not found.";
-          
         } catch (error) {
-          console.error("Firebase test error:", error);
-          status.textContent = "Test failed: " + error.code;
-        } finally {
-          button.disabled = false;
+          status.textContent = "SIGN-IN FAILED: " + error.code;
         }
-      });
-
-    } catch (error) {
-      console.error("Firebase initialization error:", error);
-      status.textContent = "Initialization failed: " + error.message;
-    }
+      }
+    );
   </script>
 </body>
 </html>
