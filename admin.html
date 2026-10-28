@@ -152,17 +152,31 @@
         const adminRef = doc(db, "admins", user.uid);
         const adminSnap = await getDoc(adminRef);
 
-        if (
-          !adminSnap.exists() ||
-          adminSnap.data().active !== true ||
-          !["owner", "admin"].includes(adminSnap.data().role)
-        ) {
-          await signOut(auth);
-          message.textContent =
-            "Access denied. This account is not an active administrator.";
-          form.hidden = false;
-          return;
-        }
+        if (!adminSnap.exists()) {
+  await signOut(auth);
+  message.textContent =
+    "Admin document not found. UID: " + user.uid;
+  form.hidden = false;
+  return;
+}
+
+const adminData = adminSnap.data();
+
+if (adminData.active !== true) {
+  await signOut(auth);
+  message.textContent =
+    "Admin inactive. Value: " + String(adminData.active);
+  form.hidden = false;
+  return;
+}
+
+if (!["owner", "admin"].includes(adminData.role)) {
+  await signOut(auth);
+  message.textContent =
+    "Role not accepted. Value: " + JSON.stringify(adminData.role);
+  form.hidden = false;
+  return;
+}
 
         message.textContent =
           "Administrator verified. Dashboard features will be added next.";
