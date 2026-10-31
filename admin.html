@@ -135,7 +135,6 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     console.log("Firebase project:", app.options.projectId);
-console.log("Authenticated UID:", auth.currentUser?.uid);
 
     const form = document.getElementById("loginForm");
     const message = document.getElementById("message");
