@@ -150,7 +150,7 @@
       message.textContent = "Checking administrator access...";
 
       try {
-        const adminRef = doc(db, "admins", user.uid);
+      
         const adminRef = doc(db, "admins", user.uid);
 const adminSnap = await getDoc(adminRef);
 
