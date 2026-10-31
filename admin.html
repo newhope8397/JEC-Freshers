@@ -143,57 +143,58 @@
     let checking = false;
 
     async function verifyAdmin(user) {
-      if (!user || checking) return;
+  if (!user || checking) return;
 
-      checking = true;
-      form.hidden = true;
-      message.textContent = "Checking administrator access...";
+  checking = true;
+  form.hidden = true;
+  message.textContent = "Checking administrator access...";
 
-      try {
-      
-        const adminRef = doc(db, "admins", user.uid);
-const adminSnap = await getDoc(adminRef);
+  try {
+    const adminRef = doc(db, "admins", user.uid);
 
-console.log("Project:", app.options.projectId);
-console.log("Database:", db.app.options.projectId);
-console.log("Signed-in UID:", user.uid);
-console.log("Admin path:", adminRef.path);
-console.log("Document exists:", adminSnap.exists());
-        if (!adminSnap.exists()) {
-  await signOut(auth);
-  message.textContent =
-    "Admin document not found. UID: " + user.uid;
-  form.hidden = false;
-  return;
-}
+    console.log("Project:", app.options.projectId);
+    console.log("UID:", user.uid);
+    console.log("Document path:", adminRef.path);
 
-const adminData = adminSnap.data();
+    const adminSnap = await getDoc(adminRef);
 
-if (adminData.active !== true) {
-  await signOut(auth);
-  message.textContent =
-    "Admin inactive. Value: " + String(adminData.active);
-  form.hidden = false;
-  return;
-}
+    console.log("Document exists:", adminSnap.exists());
 
-if (!["owner", "admin"].includes(adminData.role)) {
-  await signOut(auth);
-  message.textContent =
-    "Role not accepted. Value: " + JSON.stringify(adminData.role);
-  form.hidden = false;
-  return;
-}
+    if (!adminSnap.exists()) {
+      message.textContent =
+        "Admin document not found. Check browser console.";
+      form.hidden = false;
+      return;
+    }
 
-        message.textContent =
-          "Administrator verified. Dashboard features will be added next.";
-      } catch (error) {
-        message.textContent =
-          "Could not verify administrator access: " + error.code;
-        form.hidden = false;
-      } finally {
-        checking = false;
-      }
+    const adminData = adminSnap.data();
+
+    console.log("Admin data:", adminData);
+
+    if (
+      adminData.active !== true ||
+      !["owner", "admin"].includes(adminData.role)
+    ) {
+      message.textContent =
+        "The admin document exists, but its role or active status is invalid.";
+      form.hidden = false;
+      return;
+    }
+
+    message.textContent =
+      "Administrator verified. Dashboard features will be added next.";
+
+  } catch (error) {
+    console.error("Admin verification error:", error);
+
+    message.textContent =
+      "Verification failed: " + error.code;
+
+    form.hidden = false;
+
+  } finally {
+    checking = false;
+  }
     }
 
     form.addEventListener("submit", async (event) => {
