@@ -49,10 +49,14 @@
           status.textContent =
             "Sign-in successful. UID: " + credential.user.uid;
 
-          try {
-            await getDoc(doc(db, "admins", credential.user.uid));
-            status.textContent =
-              "ADMIN READ SUCCESS. Testing content...";
+          try {const adminRef = doc(db, "admins", credential.user.uid);
+const adminSnap = await getDoc(adminRef);
+
+status.textContent =
+  "Project: " + app.options.projectId +
+  " | UID: " + credential.user.uid +
+  " | Path: " + adminRef.path +
+  " | Exists: " + adminSnap.exists();
 
           } catch (error) {
             status.textContent =
