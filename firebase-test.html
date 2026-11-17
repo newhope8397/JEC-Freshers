@@ -52,6 +52,13 @@
           try {
   const adminRef = doc(db, "admins", credential.user.uid);
   const adminSnap = await getDoc(adminRef);
+            console.log("Admin exists:", adminSnap.exists());
+
+if (adminSnap.exists()) {
+  console.log("Admin data:", adminSnap.data());
+} else {
+  console.log("Admin document does not exist at:", adminRef.path);
+}
 
   const adminResult = {
     projectId: app.options.projectId,
@@ -60,8 +67,10 @@
     documentExists: adminSnap.exists()
   };
 
-  status.textContent = JSON.stringify(adminResult);
-
+  status.textContent = adminSnap.exists()
+  ? "ADMIN DOCUMENT EXISTS"
+  : "ADMIN DOCUMENT DOES NOT EXIST";
+            
   if (!adminSnap.exists()) {
     return;
   }
