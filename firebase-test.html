@@ -49,19 +49,33 @@
           status.textContent =
             "Sign-in successful. UID: " + credential.user.uid;
 
-          try {const adminRef = doc(db, "admins", credential.user.uid);
-const adminSnap = await getDoc(adminRef);
+          try {
+  const adminRef = doc(db, "admins", credential.user.uid);
+  const adminSnap = await getDoc(adminRef);
 
-status.textContent =
-  "Project: " + app.options.projectId +
-  " | UID: " + credential.user.uid +
-  " | Path: " + adminRef.path +
-  " | Exists: " + adminSnap.exists();
+  const adminResult = {
+    projectId: app.options.projectId,
+    uid: credential.user.uid,
+    documentPath: adminRef.path,
+    documentExists: adminSnap.exists()
+  };
 
-          } catch (error) {
-            status.textContent =
-              "ADMIN READ FAILED: " + error.code;
-            return;
+  status.textContent = JSON.stringify(adminResult);
+
+  if (!adminSnap.exists()) {
+    return;
+  }
+
+  const snapshot = await getDoc(doc(db, "content", "content"));
+
+  status.textContent = JSON.stringify({
+    ...adminResult,
+    contentExists: snapshot.exists()
+  });
+
+} catch (error) {
+  status.textContent =
+    "DIAGNOSTIC FAILED: " + error.code;
           }
 
           try {
