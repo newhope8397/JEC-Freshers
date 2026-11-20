@@ -754,11 +754,16 @@
     } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 
     import {
-      getFirestore,
-      doc,
-      getDoc
-    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
-
+  getFirestore,
+  doc,
+  getDoc,
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
     const app = initializeApp(firebaseConfig);
 
@@ -906,30 +911,53 @@
 
     async function loadOverview() {
 
-      const recent = document.getElementById("recentContent");
+  const recent = document.getElementById("recentContent");
 
-      try {
+  try {
 
-        // Current Firestore content document
+    const contentRef = doc(db, "content", "content");
 
-        const contentRef = doc(db, "content", "content");
+    const contentSnap = await getDoc(contentRef);
 
-        const contentSnap = await getDoc(contentRef);
+    if (!contentSnap.exists()) {
 
-        if (!contentSnap.exists()) {
+      recent.textContent = "No content has been added yet.";
 
-          document.getElementById("totalContent").textContent = "0";
+    } else {
 
-          document.getElementById("publishedContent").textContent = "0";
+      const data = contentSnap.data();
 
-          document.getElementById("draftContent").textContent = "0";
+      const title = document.createElement("h3");
 
-          recent.textContent = "No content has been added yet.";
+      title.textContent = data.title || "Untitled content";
 
-          return;
+      const description = document.createElement("p");
 
-        }
+      description.textContent =
+        (data.section || "General") + " · Recently stored content";
 
+      const badge = document.createElement("span");
+
+      badge.className = "badge";
+
+      badge.textContent = data.status || "draft";
+
+      recent.replaceChildren(title, description, badge);
+
+    }
+
+    await updateDashboardStats();
+
+  } catch (error) {
+
+    console.error(error);
+
+    recent.textContent =
+      "Unable to load dashboard information.";
+
+  }
+
+  }
         const data = contentSnap.data();
 
         const status = data.status || "draft";
@@ -1043,80 +1071,585 @@
       const details = pageDetails[page];
 
       if (!details) return;
+// CONTENT MANAGER
 
-      document.getElementById("pageTitle").textContent =
-        details.title;
+async function loadContentManager() {
 
-      document.querySelectorAll(".nav-link[data-page]").forEach(link => {
+  const content = document.getElementById("pageContent");
 
-        link.classList.toggle(
-          "active",
-          link.dataset.page === page
+  content.innerHTML = `
+    <div class="welcome">
+      <h1>Content Manager</h1>
+      <p>Create, edit and publish information on your JEC portal.</p>
+    </div>
+
+    <div class="actions" style="margin-top:25px;">
+
+      <div class="action-card">
+        <h3>📝 Manage Portal Content</h3>
+        <p>Create new information or update existing records.</p>
+        <button id="newContentButton">+ New Content</button>
+      </div>
+
+    </div>
+
+    <div id="editorContainer" style="display:none;margin-top:25px;">
+
+      <div class="recent-card">
+
+        <h3 id="editorHeading">Create New Content</h3>
+
+        <form id="contentForm">
+
+          <label>Content Title</label>
+
+          <input
+            id="contentTitle"
+            type="text"
+            maxlength="150"
+            placeholder="Enter a title"
+            required
+            style="width:100%;padding:12px;margin:9px 0 18px;border:1px solid var(--line);border-radius:9px;"
+          >
+
+          <label>Section</label>
+
+          <select
+            id="contentSection"
+            required
+            style="width:100%;padding:12px;margin:9px 0 18px;border:1px solid var(--line);border-radius:9px;background:white;"
+          >
+            <option value="announcements">Announcements</option>
+            <option value="academics">Academics</option>
+            <option value="communities">Clubs & Communities</option>
+            <option value="events">Events</option>
+            <option value="hackathons">Hackathons</option>
+            <option value="campus">Campus Navigator</option>
+          </select>
+
+          <label>Content / Description</label>
+
+          <textarea
+            id="contentBody"
+            rows="7"
+            maxlength="10000"
+            placeholder="Write your content here..."
+            required
+            style="width:100%;padding:12px;margin:9px 0 18px;border:1px solid var(--line);border-radius:9px;resize:vertical;font:inherit;"
+          ></textarea>
+
+          <label>Status</label>
+
+          <select
+            id="contentStatus"
+            style="width:100%;padding:12px;margin:9px 0 18px;border:1px solid var(--line);border-radius:9px;background:white;"
+          >
+            <option value="draft">Save as Draft</option>
+            <option value="published">Publish</option>
+          </select>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+
+            <button class="primary-btn" id="saveContentButton" type="submit" style="width:auto;">
+              Save Content
+            </button>
+
+            <button type="button" id="cancelEditorButton"
+              style="padding:12px;border:1px solid var(--line);border-radius:9px;background:white;">
+              Cancel
+            </button>
+
+          </div>
+
+          <p id="editorMessage" role="status" aria-live="polite"></p>
+
+        </form>
+
+      </div>
+
+    </div>
+
+    <h3 class="section-title">All Content</h3>
+
+    <div id="contentList">
+      Loading content...
+    </div>
+  `;
+
+
+  let editingId = null;
+
+  const editor = document.getElementById("editorContainer");
+
+  const form = document.getElementById("contentForm");
+
+  const editorMessage = document.getElementById("editorMessage");
+
+  const saveButton = document.getElementById("saveContentButton");
+
+
+  // SHOW NEW CONTENT FORM
+
+  document.getElementById("newContentButton").onclick = () => {
+
+    editingId = null;
+
+    form.reset();
+
+    document.getElementById("editorHeading").textContent =
+      "Create New Content";
+
+    saveButton.textContent = "Save Content";
+
+    editorMessage.textContent = "";
+
+    editor.style.display = "block";
+
+    editor.scrollIntoView({ behavior: "smooth" });
+
+  };
+
+
+  // CANCEL EDITOR
+
+  document.getElementById("cancelEditorButton").onclick = () => {
+
+    editor.style.display = "none";
+
+    form.reset();
+
+    editingId = null;
+
+  };
+
+
+  // SAVE CONTENT
+
+  form.addEventListener("submit", async (event) => {
+
+    event.preventDefault();
+
+    saveButton.disabled = true;
+
+    editorMessage.textContent = "Saving...";
+
+    const title =
+      document.getElementById("contentTitle").value.trim();
+
+    const section =
+      document.getElementById("contentSection").value;
+
+    const body =
+      document.getElementById("contentBody").value.trim();
+
+    const status =
+      document.getElementById("contentStatus").value;
+
+
+    try {
+
+      const contentData = {
+        title,
+        section,
+        body,
+        status,
+        updatedAt: serverTimestamp()
+      };
+
+
+      if (editingId) {
+
+        await updateDoc(
+          doc(db, "content", editingId),
+          contentData
         );
 
-      });
+      } else {
+
+        await addDoc(
+          collection(db, "content"),
+          {
+            ...contentData,
+            createdAt: serverTimestamp()
+          }
+        );
+
+      }
 
 
-      const content = document.getElementById("pageContent");
+      editorMessage.textContent = "Content saved successfully!";
 
-      if (page === "dashboard") {
+      form.reset();
 
-        location.reload();
+      editor.style.display = "none";
+
+      editingId = null;
+
+      await renderContentList();
+
+      await updateDashboardStats();
+
+    } catch (error) {
+
+      console.error(error);
+
+      editorMessage.textContent =
+        "Error: " + error.message;
+
+    } finally {
+
+      saveButton.disabled = false;
+
+    }
+
+  });
+
+
+  // LOAD CONTENT LIST
+
+  async function renderContentList() {
+
+    const list = document.getElementById("contentList");
+
+    list.textContent = "Loading...";
+
+    try {
+
+      const snapshot = await getDocs(
+        collection(db, "content")
+      );
+
+      list.replaceChildren();
+
+      if (snapshot.empty) {
+
+        list.textContent = "No content available yet.";
 
         return;
 
       }
 
-      content.innerHTML = `
 
-        <div class="welcome">
+      const records = snapshot.docs.map(item => ({
+        id: item.id,
+        ...item.data()
+      }));
 
-          <h1>${details.title}</h1>
 
-          <p>${details.description}</p>
+      records.sort((a, b) => {
 
-        </div>
+        const aTime = a.updatedAt?.toMillis?.() || 0;
 
-        <div class="coming-soon">
+        const bTime = b.updatedAt?.toMillis?.() || 0;
 
-          <div class="icon">${details.icon}</div>
+        return bTime - aTime;
 
-          <h2>Coming Soon</h2>
+      });
 
-          <p>
-            This section will be developed in the next phase
-            of the JEC Freshers Admin Dashboard.
-          </p>
 
-        </div>
+      records.forEach(item => {
 
-      `;
+        const card = document.createElement("div");
 
-      closeSidebar();
+        card.className = "recent-card";
+
+
+        const title = document.createElement("h3");
+
+        title.textContent = item.title || "Untitled";
+
+
+        const details = document.createElement("p");
+
+        details.textContent =
+          `${item.section || "General"} · ${item.status || "draft"}`;
+
+
+        const badge = document.createElement("span");
+
+        badge.className = "badge";
+
+        badge.textContent = item.status || "draft";
+
+
+        const buttonArea = document.createElement("div");
+
+        buttonArea.style.cssText =
+          "display:flex;gap:10px;margin-top:15px;";
+
+
+        const editButton = document.createElement("button");
+
+        editButton.className = "primary-btn";
+
+        editButton.style.cssText =
+          "width:auto;padding:9px 14px;margin:0;";
+
+        editButton.textContent = "Edit";
+
+
+        editButton.onclick = () => {
+
+          editingId = item.id;
+
+          document.getElementById("contentTitle").value =
+            item.title || "";
+
+          document.getElementById("contentSection").value =
+            item.section || "announcements";
+
+          document.getElementById("contentBody").value =
+            item.body || "";
+
+          document.getElementById("contentStatus").value =
+            item.status || "draft";
+
+
+          document.getElementById("editorHeading").textContent =
+            "Edit Content";
+
+          saveButton.textContent = "Update Content";
+
+          editorMessage.textContent = "";
+
+          editor.style.display = "block";
+
+          editor.scrollIntoView({ behavior: "smooth" });
+
+        };
+
+
+        const deleteButton = document.createElement("button");
+
+        deleteButton.textContent = "Delete";
+
+        deleteButton.style.cssText =
+          "padding:9px 14px;border:1px solid #D9A6A0;border-radius:9px;background:white;color:#A34B42;";
+
+
+        deleteButton.onclick = async () => {
+
+          if (!confirm("Are you sure you want to delete this content?")) {
+            return;
+          }
+
+          try {
+
+            await deleteDoc(
+              doc(db, "content", item.id)
+            );
+
+            await renderContentList();
+
+            await updateDashboardStats();
+
+          } catch (error) {
+
+            alert("Could not delete content: " + error.message);
+
+          }
+
+        };
+
+
+        buttonArea.append(editButton, deleteButton);
+
+        card.append(title, details, badge, buttonArea);
+
+        list.appendChild(card);
+
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      list.textContent =
+        "Unable to load content: " + error.message;
 
     }
 
+  }
 
-    document.querySelectorAll("[data-page]").forEach(button => {
 
-      button.addEventListener("click", () => {
+  await renderContentList();
 
-        openPage(button.dataset.page);
+}
 
-      });
+
+// UPDATE DASHBOARD STATISTICS
+
+async function updateDashboardStats() {
+
+  try {
+
+    const snapshot = await getDocs(
+      collection(db, "content")
+    );
+
+    let published = 0;
+
+    let drafts = 0;
+
+    snapshot.forEach(item => {
+
+      const status = item.data().status;
+
+      if (status === "published") published++;
+
+      if (status === "draft") drafts++;
 
     });
 
 
-    document.querySelectorAll("[data-open-page]").forEach(button => {
+    document.getElementById("totalContent").textContent =
+      snapshot.size;
 
-      button.addEventListener("click", () => {
+    document.getElementById("publishedContent").textContent =
+      published;
 
-        openPage(button.dataset.openPage);
+    document.getElementById("draftContent").textContent =
+      drafts;
 
-      });
+  } catch (error) {
 
-    });
+    console.error("Statistics error:", error);
+
+  }
+
+}
+
+
+// SIDEBAR NAVIGATION
+
+const pageDetails = {
+
+  dashboard: {
+    title: "Dashboard"
+  },
+
+  content: {
+    title: "Content Manager"
+  },
+
+  announcements: {
+    title: "Announcements"
+  },
+
+  academics: {
+    title: "Academics"
+  },
+
+  communities: {
+    title: "Clubs & Communities"
+  },
+
+  events: {
+    title: "Events"
+  },
+
+  hackathons: {
+    title: "Hackathons"
+  },
+
+  campus: {
+    title: "Campus Navigator"
+  },
+
+  admins: {
+    title: "Administrators"
+  },
+
+  settings: {
+    title: "Settings"
+  }
+
+};
+
+
+async function openPage(page) {
+
+  const details = pageDetails[page];
+
+  if (!details) return;
+
+  document.getElementById("pageTitle").textContent =
+    details.title;
+
+
+  document.querySelectorAll(".nav-link[data-page]").forEach(link => {
+
+    link.classList.toggle(
+      "active",
+      link.dataset.page === page
+    );
+
+  });
+
+
+  if (page === "content") {
+
+    await loadContentManager();
+
+  } else if (page === "dashboard") {
+
+    location.reload();
+
+  } else {
+
+    const content = document.getElementById("pageContent");
+
+    content.innerHTML = `
+
+      <div class="welcome">
+
+        <h1>${details.title}</h1>
+
+        <p>Manage your JEC Freshers Portal.</p>
+
+      </div>
+
+      <div class="coming-soon">
+
+        <div class="icon">🌱</div>
+
+        <h2>Coming Soon</h2>
+
+        <p>
+          This section will be developed in the next phase.
+        </p>
+
+      </div>
+
+    `;
+
+  }
+
+  closeSidebar();
+
+}
+
+
+document.querySelectorAll("[data-page]").forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    openPage(button.dataset.page);
+
+  });
+
+});
+
+
+document.querySelectorAll("[data-open-page]").forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    openPage(button.dataset.openPage);
+
+  });
+
+});
 
 
     // MOBILE SIDEBAR
