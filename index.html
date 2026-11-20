@@ -71,15 +71,12 @@
     }
 
     .brand-mark {
-      width: 42px;
-      height: 42px;
-      display: grid;
-      place-items: center;
-      color: white;
-      background: var(--green);
-      border-radius: 14px 14px 14px 4px;
-      font-family: "Playfair Display", serif;
-      font-size: 23px;
+  width: 52px;
+  height: 52px;
+  display: block;
+  object-fit: contain;
+  border-radius: 10px;
+  flex-shrink: 0;
     }
 
     .brand small {
@@ -467,8 +464,15 @@
   <header>
     <div class="container nav">
       <a href="#home" class="brand" aria-label="JEC Guide home">
-        <span class="brand-mark">J</span>
-        <span>JEC GUIDE<small>YOUR CAMPUS COMPANION</small></span>
+  <img
+    src="./jec-logo.jpg"
+    class="brand-mark"
+    alt="Jabalpur Engineering College emblem"
+  >
+  <span>
+    JEC GUIDE
+    <small>YOUR CAMPUS COMPANION</small>
+  </span>
       </a>
 
       <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="navLinks">
