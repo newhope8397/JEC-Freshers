@@ -16,61 +16,71 @@
   </form>
 
   <script type="module">
-    import { initializeApp } from
-      "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  import { initializeApp } from
+    "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
 
-    import { getFirestore, getDoc, doc } from
-      "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+  import {
+    getFirestore,
+    doc,
+    getDocFromServer
+  } from
+    "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-    import { getAuth, signInWithEmailAndPassword } from
-      "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword
+  } from
+    "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
 
-    import { firebaseConfig } from "./firebase-config.js";
+  import { firebaseConfig } from "./firebase-config.js";
 
-    const status = document.getElementById("status");
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    console.log("Project ID:", app.options.projectId);
-    console.log("Firestore database:", db.app.options.projectId);
-    const auth = getAuth(app);
+  const status = document.getElementById("status");
 
-    status.textContent = "Firebase initialized.";
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
 
-    document.getElementById("login-form").addEventListener(
-      "submit", async (event) => {
-        event.preventDefault();
-        status.textContent = "Signing in...";
+  document.getElementById("login-form").addEventListener(
+    "submit", async (event) => {
 
-        try {
-          const credential = await signInWithEmailAndPassword(
-            auth,
-            document.getElementById("email").value.trim(),
-            document.getElementById("password").value
-          );
+      event.preventDefault();
+      status.textContent = "Signing in...";
 
-          status.textContent =
-            "Sign-in successful. UID: " + credential.user.uid;
+      try {
+        const credential = await signInWithEmailAndPassword(
+          auth,
+          document.getElementById("email").value.trim(),
+          document.getElementById("password").value
+        );
 
-try {
-  const adminRef = doc(db, "admins", credential.user.uid);
-  const adminSnap = await getDoc(adminRef);
+        const uid = credential.user.uid;
 
-  const result = {
-    projectId: app.options.projectId,
-    uid: credential.user.uid,
-    documentPath: adminRef.path,
-    documentExists: adminSnap.exists(),
-    adminData: adminSnap.exists() ? adminSnap.data() : null
-  };
+        status.textContent = "Checking Firestore server...";
 
-  status.textContent = JSON.stringify(result);
-  console.log("Admin document path:", adminRef.path);
-console.log("Admin document exists:", adminSnap.exists());
+        const adminRef = doc(db, "admins", uid);
 
-} catch (error) {
-  status.textContent =
-    "DIAGNOSTIC FAILED: " + error.code;
-}
+        const adminSnap = await getDocFromServer(adminRef);
+
+        const result = {
+          projectId: app.options.projectId,
+          uid: uid,
+          documentPath: adminRef.path,
+          exists: adminSnap.exists(),
+          data: adminSnap.exists()
+            ? adminSnap.data()
+            : null
+        };
+
+        status.textContent = JSON.stringify(result);
+
+      } catch (error) {
+
+        status.textContent =
+          "ERROR: " + error.code + " | " + error.message;
+
+      }
+    }
+  );
   </script>
 </body>
 </html>
