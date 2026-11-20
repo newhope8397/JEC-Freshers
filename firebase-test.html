@@ -30,6 +30,8 @@
     const status = document.getElementById("status");
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    console.log("Project ID:", app.options.projectId);
+    console.log("Firestore database:", db.app.options.projectId);
     const auth = getAuth(app);
 
     status.textContent = "Firebase initialized.";
@@ -62,6 +64,8 @@ try {
   };
 
   status.textContent = JSON.stringify(result);
+  console.log("Admin document path:", adminRef.path);
+console.log("Admin document exists:", adminSnap.exists());
 
 } catch (error) {
   status.textContent =
