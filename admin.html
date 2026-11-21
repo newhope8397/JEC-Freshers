@@ -845,46 +845,39 @@
     }
 
 
-    // LOGIN
+// LOGIN
 
-    loginForm.addEventListener("submit", async (event) => {
+loginForm.addEventListener("submit", async (event) => {
 
-      event.preventDefault();
+  event.preventDefault();
 
-      loginButton.disabled = true;
+  loginButton.disabled = true;
+  message.textContent = "Signing in...";
 
-      message.textContent = "Signing in...";
+  try {
 
-      try {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
 
-        const email =
-          document.getElementById("email").value.trim();
+    await signInWithEmailAndPassword(auth, email, password);
 
-        const password =
-          document.getElementById("password").value;
+    message.textContent = "Signed in. Verifying administrator access...";
 
-        const result = await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
+    // onAuthStateChanged() will handle administrator verification.
 
-        await verifyAdmin(result.user);
+  } catch (error) {
 
-      } catch (error) {
+    console.error("Login error:", error);
 
-        console.error(error);
+    message.textContent = "Sign-in failed: " + error.message;
 
-        message.textContent = "Sign-in failed: " + error.code;
+  } finally {
 
-      } finally {
+    loginButton.disabled = false;
 
-        loginButton.disabled = false;
+  }
 
-      }
-
-    });
-
+});
 
     // AUTH STATE
 
