@@ -210,6 +210,20 @@
       color: #A34B42;
     }
 
+    .back-button {
+  padding: 9px 13px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--card);
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.back-button:hover {
+  background: #E8EDE2;
+}
     /* MAIN AREA */
 
     .main {
@@ -631,11 +645,15 @@
 
         <div style="display:flex;align-items:center;gap:13px;">
 
-          <button class="menu-toggle" id="menuToggle">
-            ☰
-          </button>
+  <button class="menu-toggle" id="menuToggle">
+    ☰
+  </button>
 
-          <h2 id="pageTitle">Dashboard</h2>
+  <button id="backToDashboard" class="back-button" style="display:none;">
+    ← Dashboard
+  </button>
+
+  <h2 id="pageTitle">Dashboard</h2>
 
         </div>
 
@@ -1459,6 +1477,10 @@ async function openPage(page) {
   document.getElementById("pageTitle").textContent =
     details.title;
 
+  const backButton = document.getElementById("backToDashboard");
+
+backButton.style.display =
+  page === "dashboard" ? "none" : "block";
 
   document.querySelectorAll(".nav-link[data-page]").forEach(link => {
 
@@ -1511,6 +1533,9 @@ async function openPage(page) {
   closeSidebar();
 
 }
+    document.getElementById("backToDashboard").addEventListener("click", () => {
+  location.reload();
+});
 
 
 document.querySelectorAll("[data-page]").forEach(button => {
