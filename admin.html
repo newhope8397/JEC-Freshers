@@ -1498,9 +1498,61 @@ backButton.style.display =
 
   } else if (page === "dashboard") {
 
-    location.reload();
+  document.getElementById("pageContent").innerHTML = `
+    <div class="welcome">
+      <h1>Welcome back, Administrator.</h1>
+      <p>Manage your JEC Freshers Portal from one place.</p>
+    </div>
 
-  } else {
+    <div class="stats">
+      <div class="stat-card">
+        <span>Content Records</span>
+        <h2 id="totalContent">—</h2>
+      </div>
+
+      <div class="stat-card">
+        <span>Published Items</span>
+        <h2 id="publishedContent">—</h2>
+      </div>
+
+      <div class="stat-card">
+        <span>Drafts</span>
+        <h2 id="draftContent">—</h2>
+      </div>
+    </div>
+
+    <h3 class="section-title">Quick Actions</h3>
+
+    <div class="actions">
+      <div class="action-card">
+        <h3>📝 Create Content</h3>
+        <p>Add information and updates to the public portal.</p>
+        <button data-open-page="content">Manage Content →</button>
+      </div>
+
+      <div class="action-card">
+        <h3>📅 Manage Events</h3>
+        <p>Prepare upcoming college events and activities.</p>
+        <button data-open-page="events">Manage Events →</button>
+      </div>
+    </div>
+
+    <h3 class="section-title">Recent Content</h3>
+
+    <div id="recentContent" class="recent-card">
+      Loading content...
+    </div>
+  `;
+
+  document.querySelectorAll("[data-open-page]").forEach(button => {
+    button.addEventListener("click", () => {
+      openPage(button.dataset.openPage);
+    });
+  });
+
+  await loadOverview();
+
+} else {
 
     const content = document.getElementById("pageContent");
 
@@ -1534,7 +1586,7 @@ backButton.style.display =
 
 }
     document.getElementById("backToDashboard").addEventListener("click", () => {
-  location.reload();
+  openPage("dashboard");
 });
 
 
