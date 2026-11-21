@@ -479,6 +479,343 @@
       }
     }
 
+    /* =================================
+   JEC ADMIN DASHBOARD REDESIGN
+================================= */
+
+:root {
+  --paper: #F7F4EA;
+  --green: #31594D;
+  --green-dark: #203F36;
+  --ink: #26352E;
+  --muted: #68746B;
+  --card: #FFFEFA;
+  --line: #E6E2D7;
+  --gold: #E7A64B;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+  background: var(--green-dark);
+  border-right: none;
+  color: white;
+  padding: 24px 17px;
+}
+
+.brand {
+  border-bottom: 1px solid #FFFFFF25;
+  padding-bottom: 25px;
+}
+
+.brand strong {
+  color: white;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.brand small {
+  color: #D5E1D8;
+  font-size: 9px;
+}
+
+.nav-heading {
+  color: #A9BDB2;
+  font-size: 10px;
+}
+
+.nav-link {
+  color: #E2EAE4;
+  border-radius: 9px;
+  transition: .2s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background: #FFFFFF18;
+  color: white;
+}
+
+.nav-link.active {
+  border-left: 3px solid var(--gold);
+}
+
+.nav-link.logout {
+  color: #FFB7AA;
+}
+
+.sidebar-bottom {
+  border-top: 1px solid #FFFFFF25;
+}
+
+/* TOPBAR */
+
+.topbar {
+  background: rgba(255,254,250,.96);
+  min-height: 78px;
+  padding: 14px 32px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(12px);
+}
+
+.topbar h2 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--green-dark);
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-brand img {
+  width: 39px;
+  height: 39px;
+  object-fit: contain;
+}
+
+.profile-icon {
+  background: var(--green);
+  border: 3px solid #E8EDE2;
+}
+
+/* CONTENT */
+
+.content {
+  padding: 30px 35px 50px;
+}
+
+/* WELCOME BANNER */
+
+.welcome-banner {
+  position: relative;
+  min-height: 280px;
+  overflow: hidden;
+  border-radius: 19px;
+  background: var(--green-dark);
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  box-shadow: 0 12px 30px #203F3615;
+}
+
+.welcome-banner img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 55%;
+}
+
+.welcome-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(20,48,38,.94) 0%,
+    rgba(20,48,38,.78) 42%,
+    rgba(20,48,38,.12) 100%
+  );
+}
+
+.welcome-text {
+  position: relative;
+  z-index: 2;
+  padding: 35px;
+  max-width: 520px;
+  color: white;
+}
+
+.welcome-label {
+  display: inline-block;
+  padding: 7px 12px;
+  margin-bottom: 14px;
+  background: #FFFFFF20;
+  border: 1px solid #FFFFFF35;
+  border-radius: 30px;
+  color: #F4D9A5;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.welcome-text h1 {
+  font-family: "Playfair Display", serif;
+  font-size: 35px;
+  line-height: 1.2;
+  margin: 0 0 12px;
+}
+
+.welcome-text p {
+  color: #E4EAE5;
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* STATISTICS */
+
+.stats {
+  margin-top: 0;
+  gap: 17px;
+}
+
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  padding: 23px;
+  border-radius: 15px;
+  box-shadow: 0 5px 18px #203F3608;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 9px 24px #203F3612;
+}
+
+.stat-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--green);
+}
+
+.stat-card:nth-child(2)::after {
+  background: #7D9D74;
+}
+
+.stat-card:nth-child(3)::after {
+  background: var(--gold);
+}
+
+.stat-card h2 {
+  font-size: 32px;
+  font-weight: 800;
+}
+
+/* SECTION HEADINGS */
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--green-dark);
+  font-size: 17px;
+  font-weight: 800;
+  margin-top: 35px;
+}
+
+.section-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+/* QUICK ACTIONS */
+
+.action-card {
+  border-radius: 15px;
+  padding: 23px;
+  transition: .2s ease;
+  box-shadow: 0 5px 18px #203F3608;
+}
+
+.action-card:hover {
+  transform: translateY(-3px);
+  border-color: #B6C7B9;
+}
+
+.action-card h3 {
+  color: var(--green-dark);
+  font-size: 15px;
+}
+
+.action-card p {
+  line-height: 1.7;
+}
+
+.action-card button {
+  margin-top: 8px;
+  padding: 10px 15px;
+  transition: .2s;
+}
+
+.action-card button:hover {
+  background: var(--green-dark);
+}
+
+/* RECENT CONTENT */
+
+.recent-card {
+  border-radius: 15px;
+  box-shadow: 0 5px 18px #203F3608;
+}
+
+.badge {
+  background: #E8EDE2;
+  color: var(--green-dark);
+}
+
+/* BACK BUTTON */
+
+.back-button {
+  background: #E8EDE2;
+  border-color: transparent;
+}
+
+/* MOBILE */
+
+@media (max-width: 850px) {
+
+  .welcome-banner {
+    min-height: 250px;
+  }
+
+  .welcome-text {
+    padding: 25px;
+  }
+
+  .content {
+    padding: 22px 17px 40px;
+  }
+
+}
+
+@media (max-width: 560px) {
+
+  .welcome-banner {
+    min-height: 230px;
+  }
+
+  .welcome-text h1 {
+    font-size: 27px;
+  }
+
+  .welcome-text {
+    padding: 21px;
+  }
+
+  .topbar {
+    padding: 13px;
+  }
+
+  .header-brand img {
+    width: 32px;
+    height: 32px;
+  }
+
+    }
+
   </style>
 </head>
 
@@ -653,7 +990,13 @@
     ← Dashboard
   </button>
 
+  <div class="header-brand">
+
+  <img src="./jec-logo.png" alt="JEC Logo">
+
   <h2 id="pageTitle">Dashboard</h2>
+
+  </div>
 
         </div>
 
@@ -1499,10 +1842,32 @@ backButton.style.display =
   } else if (page === "dashboard") {
 
   document.getElementById("pageContent").innerHTML = `
-    <div class="welcome">
-      <h1>Welcome back, Administrator.</h1>
-      <p>Manage your JEC Freshers Portal from one place.</p>
-    </div>
+    <div class="welcome-banner">
+
+  <img
+    src="./jec-campus-gate.webp"
+    alt="Jabalpur Engineering College main entrance"
+    fetchpriority="high"
+  >
+
+  <div class="welcome-overlay"></div>
+
+  <div class="welcome-text">
+
+    <span class="welcome-label">
+      JABALPUR ENGINEERING COLLEGE
+    </span>
+
+    <h1>Welcome back,<br>Administrator.</h1>
+
+    <p>
+      Manage your JEC Freshers Portal from one place.
+      Keep your college community informed and connected.
+    </p>
+
+  </div>
+
+</div>
 
     <div class="stats">
       <div class="stat-card">
@@ -1539,18 +1904,105 @@ backButton.style.display =
 
     <h3 class="section-title">Recent Content</h3>
 
-    <div id="recentContent" class="recent-card">
-      Loading content...
-    </div>
-  `;
+document.getElementById("pageContent").innerHTML = `
 
-  document.querySelectorAll("[data-open-page]").forEach(button => {
-    button.addEventListener("click", () => {
-      openPage(button.dataset.openPage);
-    });
+  <div class="welcome-banner">
+
+    <img
+      src="./jec-campus-gate.webp"
+      alt="Jabalpur Engineering College main entrance"
+      fetchpriority="high"
+    >
+
+    <div class="welcome-overlay"></div>
+
+    <div class="welcome-text">
+
+      <span class="welcome-label">
+        JABALPUR ENGINEERING COLLEGE
+      </span>
+
+      <h1>Welcome back,<br>Administrator.</h1>
+
+      <p>
+        Manage your JEC Freshers Portal from one place.
+        Keep your college community informed and connected.
+      </p>
+
+    </div>
+
+  </div>
+
+  <div class="stats">
+
+    <div class="stat-card">
+      <span>Content Records</span>
+      <h2 id="totalContent">—</h2>
+    </div>
+
+    <div class="stat-card">
+      <span>Published Items</span>
+      <h2 id="publishedContent">—</h2>
+    </div>
+
+    <div class="stat-card">
+      <span>Drafts</span>
+      <h2 id="draftContent">—</h2>
+    </div>
+
+  </div>
+
+  <h3 class="section-title">Quick Actions</h3>
+
+  <div class="actions">
+
+    <div class="action-card">
+
+      <h3>📝 Create Content</h3>
+
+      <p>
+        Add information and updates to the public portal.
+      </p>
+
+      <button data-open-page="content">
+        Manage Content →
+      </button>
+
+    </div>
+
+    <div class="action-card">
+
+      <h3>📅 Manage Events</h3>
+
+      <p>
+        Prepare upcoming college events and activities.
+      </p>
+
+      <button data-open-page="events">
+        Manage Events →
+      </button>
+
+    </div>
+
+  </div>
+
+  <h3 class="section-title">Recent Content</h3>
+
+  <div id="recentContent" class="recent-card">
+    Loading content...
+  </div>
+
+`;
+
+document.querySelectorAll("[data-open-page]").forEach(button => {
+
+  button.addEventListener("click", () => {
+    openPage(button.dataset.openPage);
   });
 
-  await loadOverview();
+});
+
+await loadOverview(); 
 
 } else {
 
