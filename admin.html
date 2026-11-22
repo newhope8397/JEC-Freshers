@@ -1698,62 +1698,6 @@ if (filteredRecords.length === 0) {
 }
 
 
-      filteredRecords.forEach(item => {
-
-        const card = document.createElement("div");
-
-        card.className = "recent-card";
-
-
-        const title = document.createElement("h3");
-
-        title.textContent = item.title || "Untitled";
-
-
-        const details = document.createElement("p");
-
-        details.textContent =
-          `${item.section || "General"} · ${item.status || "draft"}`;
-
-
-        const badge = document.createElement("span");
-
-        badge.className = "badge";
-
-        badge.textContent = item.status || "draft";
-
-
-        const buttonArea = document.createElement("div");
-
-        buttonArea.style.cssText =
-          "display:flex;gap:10px;margin-top:15px;";
-
-
-        const editButton = document.createElement("button");
-
-        editButton.className = "primary-btn";
-
-        editButton.style.cssText =
-          "width:auto;padding:9px 14px;margin:0;";
-
-        editButton.textContent = "Edit";
-
-
-        editButton.onclick = () => {
-
-          editingId = item.id;
-
-          document.getElementById("contentTitle").value =
-            item.title || "";
-
-          document.getElementById("contentSection").value =
-            item.section || "announcements";
-
-          document.getElementById("contentBody").value =
-            item.body || "";
-
-          document.getElementById("contentStatus").value =
-            item.status || "draft";
 
 filteredRecords.forEach(item => {
 
