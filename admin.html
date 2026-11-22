@@ -1995,6 +1995,70 @@ previewButton.onclick = () => {
 
   };
 
+  // PUBLISH / UNPUBLISH BUTTON
+
+const publishButton = document.createElement("button");
+
+const isPublished = item.status === "published";
+
+publishButton.textContent = isPublished
+  ? "Unpublish"
+  : "Publish";
+
+publishButton.style.cssText = `
+  padding:9px 18px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:${isPublished ? "#FFF0D9" : "#E2F2E8"};
+  color:${isPublished ? "#94621D" : "#287347"};
+  cursor:pointer;
+`;
+
+publishButton.onclick = async () => {
+
+  const newStatus = isPublished ? "draft" : "published";
+
+  const confirmation = isPublished
+    ? "Unpublish this content? It will no longer be publicly available."
+    : "Publish this content? It will become publicly available.";
+
+  if (!confirm(confirmation)) {
+    return;
+  }
+
+  publishButton.disabled = true;
+  publishButton.textContent = "Updating...";
+
+  try {
+
+    await updateDoc(
+      doc(db, "content", item.id),
+      {
+        status: newStatus,
+        updatedAt: serverTimestamp()
+      }
+    );
+
+    await renderContentList();
+
+    await updateDashboardStats();
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("Could not update publication status: " + error.message);
+
+    publishButton.disabled = false;
+
+    publishButton.textContent = isPublished
+      ? "Unpublish"
+      : "Publish";
+
+  }
+
+};
+
 
   // DELETE BUTTON
 
@@ -2050,6 +2114,7 @@ previewButton.onclick = () => {
   buttonArea.append(
   previewButton,
   editButton,
+  publishButton,
   deleteButton
 );
 
