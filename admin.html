@@ -1415,9 +1415,50 @@ async function loadContentManager() {
 
     <h3 class="section-title">All Content</h3>
 
-    <div id="contentList">
-      Loading content...
-    </div>
+<div class="recent-card" style="margin-bottom:18px;">
+
+  <input
+    id="contentSearch"
+    type="search"
+    placeholder="🔍 Search by content title..."
+    style="width:100%;padding:13px;border:1px solid var(--line);border-radius:9px;margin-bottom:14px;font:inherit;"
+  >
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap;">
+
+    <select
+      id="sectionFilter"
+      style="flex:1;min-width:150px;padding:12px;border:1px solid var(--line);border-radius:9px;background:white;font:inherit;"
+    >
+      <option value="all">All Sections</option>
+      <option value="announcements">Announcements</option>
+      <option value="academics">Academics</option>
+      <option value="communities">Clubs & Communities</option>
+      <option value="events">Events</option>
+      <option value="hackathons">Hackathons</option>
+      <option value="campus">Campus Navigator</option>
+    </select>
+
+    <select
+      id="statusFilter"
+      style="flex:1;min-width:150px;padding:12px;border:1px solid var(--line);border-radius:9px;background:white;font:inherit;"
+    >
+      <option value="all">All Statuses</option>
+      <option value="published">Published</option>
+      <option value="draft">Draft</option>
+    </select>
+
+  </div>
+
+  <p id="contentCount" style="margin:14px 0 0;color:var(--muted);">
+    Loading content...
+  </p>
+
+</div>
+
+<div id="contentList">
+  Loading content...
+</div>
   `;
 
 
@@ -1430,6 +1471,23 @@ async function loadContentManager() {
   const editorMessage = document.getElementById("editorMessage");
 
   const saveButton = document.getElementById("saveContentButton");
+
+  // LIVE SEARCH AND FILTERS
+
+document.getElementById("contentSearch").addEventListener(
+  "input",
+  renderContentList
+);
+
+document.getElementById("sectionFilter").addEventListener(
+  "change",
+  renderContentList
+);
+
+document.getElementById("statusFilter").addEventListener(
+  "change",
+  renderContentList
+);
 
 
   // SHOW NEW CONTENT FORM
@@ -1590,8 +1648,57 @@ async function loadContentManager() {
 
       });
 
+      // APPLY SEARCH AND FILTERS
 
-      records.forEach(item => {
+const searchTerm = document
+  .getElementById("contentSearch")
+  .value
+  .trim()
+  .toLowerCase();
+
+const selectedSection =
+  document.getElementById("sectionFilter").value;
+
+const selectedStatus =
+  document.getElementById("statusFilter").value;
+
+
+const filteredRecords = records.filter(item => {
+
+  const matchesSearch =
+    (item.title || "").toLowerCase().includes(searchTerm);
+
+  const matchesSection =
+    selectedSection === "all" ||
+    item.section === selectedSection;
+
+  const matchesStatus =
+    selectedStatus === "all" ||
+    (item.status || "draft") === selectedStatus;
+
+  return matchesSearch && matchesSection && matchesStatus;
+
+});
+
+
+// UPDATE CONTENT COUNT
+
+document.getElementById("contentCount").textContent =
+  `Showing ${filteredRecords.length} of ${records.length} content items`;
+
+
+// HANDLE EMPTY FILTER RESULTS
+
+if (filteredRecords.length === 0) {
+
+  list.textContent = "No matching content found.";
+
+  return;
+
+}
+
+
+      filteredRecords.forEach(item => {
 
         const card = document.createElement("div");
 
