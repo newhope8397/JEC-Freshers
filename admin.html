@@ -1846,6 +1846,110 @@ filteredRecords.forEach(item => {
   `;
 
 
+  // PREVIEW BUTTON
+
+const previewButton = document.createElement("button");
+
+previewButton.textContent = "👁️ Preview";
+
+previewButton.style.cssText = `
+  padding:9px 18px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  background:white;
+  color:var(--green);
+  cursor:pointer;
+`;
+
+previewButton.onclick = () => {
+
+  const previewOverlay = document.createElement("div");
+
+  previewOverlay.style.cssText = `
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.55);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    z-index:9999;
+  `;
+
+  const previewCard = document.createElement("div");
+
+  previewCard.style.cssText = `
+    background:var(--card);
+    color:var(--ink);
+    width:100%;
+    max-width:650px;
+    max-height:85vh;
+    overflow-y:auto;
+    padding:25px;
+    border-radius:16px;
+  `;
+
+  const previewTitle = document.createElement("h2");
+  previewTitle.textContent = item.title || "Untitled";
+
+  const previewSection = document.createElement("p");
+
+  const sectionNames = {
+    announcements: "Announcements",
+    academics: "Academics",
+    communities: "Clubs & Communities",
+    events: "Events",
+    hackathons: "Hackathons",
+    campus: "Campus Navigator"
+  };
+
+  previewSection.textContent =
+    sectionNames[item.section] || "General";
+
+  const previewStatus = document.createElement("p");
+  previewStatus.textContent =
+    "Status: " + (item.status || "draft").toUpperCase();
+
+  const previewBody = document.createElement("p");
+
+  previewBody.textContent = item.body || "No description available.";
+
+  previewBody.style.cssText = `
+    white-space:pre-wrap;
+    line-height:1.7;
+    overflow-wrap:anywhere;
+    margin-top:20px;
+  `;
+
+  const closeButton = document.createElement("button");
+
+  closeButton.textContent = "Close Preview";
+  closeButton.className = "primary-btn";
+  closeButton.style.width = "auto";
+
+  closeButton.onclick = () => previewOverlay.remove();
+
+  previewCard.append(
+    previewTitle,
+    previewSection,
+    previewStatus,
+    previewBody,
+    closeButton
+  );
+
+  previewOverlay.appendChild(previewCard);
+
+  previewOverlay.onclick = (event) => {
+    if (event.target === previewOverlay) {
+      previewOverlay.remove();
+    }
+  };
+
+  document.body.appendChild(previewOverlay);
+
+};
+
+  
   // EDIT BUTTON
 
   const editButton = document.createElement("button");
@@ -1943,8 +2047,11 @@ filteredRecords.forEach(item => {
   };
 
 
-  buttonArea.append(editButton, deleteButton);
-
+  buttonArea.append(
+  previewButton,
+  editButton,
+  deleteButton
+);
 
   // FINAL CARD
 
