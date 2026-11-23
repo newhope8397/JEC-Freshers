@@ -718,7 +718,7 @@
   <script>
     const menuBtn = document.getElementById("menuBtn");
     const navLinks = document.getElementById("navLinks");
-
+    
     menuBtn.addEventListener("click", () => {
       const isOpen = navLinks.classList.toggle("open");
       menuBtn.setAttribute("aria-expanded", String(isOpen));
@@ -733,5 +733,26 @@
       });
     });
   </script>
+  
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+
+  import {
+    getFirestore,
+    collection,
+    query,
+    where,
+    onSnapshot
+  } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+  import { firebaseConfig } from "./firebase-config.js";
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Firebase connection is ready
+  console.log("JEC Freshers Firebase connected successfully!");
+  </script>
+  
 </body>
 </html>
