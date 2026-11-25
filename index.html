@@ -780,6 +780,79 @@
 
   // Firebase connection is ready
   console.log("JEC Freshers Firebase connected successfully!");
+
+    
+    // Load published announcements in real time
+
+const announcementList = document.getElementById("announcementList");
+
+const announcementsQuery = query(
+  collection(db, "content"),
+  where("status", "==", "published"),
+  where("section", "==", "announcements")
+);
+
+onSnapshot(
+  announcementsQuery,
+
+  (snapshot) => {
+
+    announcementList.innerHTML = "";
+
+    if (snapshot.empty) {
+      announcementList.innerHTML = `
+        <div class="guide-card">
+          <span class="emoji">📢</span>
+          <h3>No announcements yet</h3>
+          <p>New announcements will appear here when published.</p>
+        </div>
+      `;
+      return;
+    }
+
+    snapshot.forEach((doc) => {
+
+      const data = doc.data();
+
+      const card = document.createElement("div");
+      card.className = "guide-card";
+
+      const icon = document.createElement("span");
+      icon.className = "emoji";
+      icon.textContent = "📢";
+
+      const title = document.createElement("h3");
+      title.textContent = data.title || "Announcement";
+
+      const description = document.createElement("p");
+      description.textContent = data.body || "";
+
+      const label = document.createElement("span");
+      label.className = "card-link";
+      label.textContent = "JEC Announcement";
+
+      card.append(icon, title, description, label);
+
+      announcementList.appendChild(card);
+
+    });
+
+  },
+
+  (error) => {
+
+    console.error("Announcements loading error:", error);
+
+    announcementList.innerHTML = `
+      <div class="guide-card">
+        <span class="emoji">⚠️</span>
+        <h3>Unable to load announcements</h3>
+        <p>Please try again later.</p>
+      </div>
+    `;
+
+  }
+);
   </script>
   
 </body>
